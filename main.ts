@@ -21,6 +21,14 @@ if (process.argv.includes('--parity')) {
   process.exit(0);
 }
 
+// --bench-report: run the full verify benchmark N times (MFR_BENCH_ITER, default 5) and print a
+// timing summary. Dynamic import keeps bench-report.ts out of the hot path entirely.
+if (process.argv.includes('--bench-report')) {
+  const bench = await import('./bench-report.ts');
+  await bench.runBenchReport();
+  process.exit(0);
+}
+
 const cases = JSON.parse(readFileSync(join(INPUT_DIR, 'cases.json'), 'utf8')) as { id: string; markdown: string }[];
 const t0 = Date.now();
 const html: string[] = [];
