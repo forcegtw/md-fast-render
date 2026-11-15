@@ -13,6 +13,14 @@ import { parse } from './parse.js';
 const INPUT_DIR = process.env.MAKEFUN_INPUT_DIR ?? '/input';
 const OUTPUT_DIR = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
 
+// --parity: run the parity spot-checker against the vendored reference instead of the
+// graded render loop. Dynamic import keeps parity-sample.ts out of the hot path entirely.
+if (process.argv.includes('--parity')) {
+  const parity = await import('./parity-sample.ts');
+  await parity.runParitySample();
+  process.exit(0);
+}
+
 const cases = JSON.parse(readFileSync(join(INPUT_DIR, 'cases.json'), 'utf8')) as { id: string; markdown: string }[];
 const t0 = Date.now();
 const html: string[] = [];
