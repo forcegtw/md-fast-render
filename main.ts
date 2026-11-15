@@ -29,6 +29,12 @@ if (process.argv.includes('--bench-report')) {
   process.exit(0);
 }
 
+// --health: run the healthcheck utility; exit nonzero if any check fails.
+if (process.argv.includes('--health')) {
+  const { runHealthCheck } = await import('./healthcheck.ts');
+  process.exit(await runHealthCheck() ? 0 : 1);
+}
+
 const cases = JSON.parse(readFileSync(join(INPUT_DIR, 'cases.json'), 'utf8')) as { id: string; markdown: string }[];
 const t0 = Date.now();
 const html: string[] = [];
