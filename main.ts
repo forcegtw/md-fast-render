@@ -7,6 +7,7 @@
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { logSummary, validateOutputCount } from './main-helpers.ts';
 import { parse } from './parse.js';
 
 const INPUT_DIR = process.env.MAKEFUN_INPUT_DIR ?? '/input';
@@ -16,5 +17,7 @@ const cases = JSON.parse(readFileSync(join(INPUT_DIR, 'cases.json'), 'utf8')) as
 const t0 = Date.now();
 const html: string[] = [];
 for (const c of cases) html.push(parse(c.markdown));
-console.error(`[mfr] rendered ${cases.length} cases in ${Date.now() - t0}ms`);
+const ms = Date.now() - t0;
+validateOutputCount(html.length);
+logSummary(cases, ms, new TextEncoder().encode(JSON.stringify(html)).length);
 writeFileSync(join(OUTPUT_DIR, 'html.json'), JSON.stringify(html));

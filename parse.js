@@ -15,7 +15,12 @@ function F_old(a){return a.trim().replace(T.multipleSpaceGlobal," ").toLowerCase
 `).map(r=>{let o=r.match(t.other.beginningSpace);if(o===null)return r;let[i]=o;return r.slice(Math.min(i.length,s.length))}).join(`
 `)}function Be(a,e,t,n){if(!e.includes("<"))return!1;for(let s=0;s<e.length;s++){if(e[s]==="\\"){s++;continue}if(e[s]==="`"){let i=n.inline.code.exec(e.slice(s));if(i){s+=i[0].length-1;continue}}if(e[s]!=="<")continue;let r=a.slice(t+s),o=n.inline.tag.exec(r)||n.inline.autolink.exec(r);if(o){if(o[0].length>e.length-s)return!0;s+=o[0].length-1}}return!1}var _=class{options;rules;lexer;constructor(e){this.options=e||S}space(e){let t=this.rules.block.newline.exec(e);if(t&&t[0].length>0)return{type:"space",raw:t[0]}}code(e){let t=this.rules.block.code.exec(e);if(t){let n=this.options.pedantic?t[0]:ge(t[0]),s=n.replace(this.rules.other.codeRemoveIndent,"");return{type:"code",raw:n,codeBlockStyle:"indented",text:s}}}fences(e){let t=this.rules.block.fences.exec(e);if(t){let n=t[0],s=Dt(n,t[3]||"",this.rules);return{type:"code",raw:n,lang:t[2]?t[2].trim().replace(this.rules.inline.anyPunctuation,"$1"):t[2],text:s}}}heading(e){let t=this.rules.block.heading.exec(e);if(t){let n=t[2].trim();if(this.rules.other.endingHash.test(n)){let s=L(n,"#");(this.options.pedantic||!s||this.rules.other.endingSpaceTabChar.test(s))&&(n=s.trim())}return{type:"heading",raw:L(t[0],`
 `),depth:t[1].length,text:n,tokens:this.lexer.inline(n)}}}hr(e){let n=e.charCodeAt(0);if(n!==32&&n!==42&&n!==45&&n!==95)return;let t=this.rules.block.hr.exec(e);if(t)return{type:"hr",raw:L(t[0],`
-`)}}blockquote(e){let t=this.rules.block.blockquote.exec(e);if(t){let n=L(t[0],`
+`)}}blockquote(e){let n=e.charCodeAt(0),i=0;while(i<3&&n===32){n=e.charCodeAt(++i)}
+// Fast guard: a blockquote line starts with up to 3 spaces followed by `>`.
+// Checking chars 0..3 directly is far cheaper than running the blockquote regex,
+// and the regex itself encodes exactly this same ` {0,3}>` prefix, so skipping
+// when the prefix is absent cannot change any output.
+if(n!==62)return;let t=this.rules.block.blockquote.exec(e);if(t){let n=L(t[0],`
 `).split(`
 `),s="",r="",o=[];for(;n.length>0;){let i=!1,l=[],p;for(p=0;p<n.length;p++)if(this.rules.other.blockquoteStart.test(n[p]))l.push(n[p]),i=!0;else if(!i)l.push(n[p]);else break;n=n.slice(p);let h=l.join(`
 `),u=h.replace(this.rules.other.blockquoteMarkerWhitespace,(g,b,m)=>b+J(m,b.length)).replace(this.rules.other.blockquoteSetextReplace,`
